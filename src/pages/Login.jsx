@@ -12,8 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await login(email, password);
-      alert("Logged in!");
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Error logging in");

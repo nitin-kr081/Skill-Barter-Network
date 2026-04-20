@@ -8,7 +8,7 @@ const MAX_SKILLS = 3;
 const parseSkills = (input) =>
   input
     .split(",")
-    .map((s) => s.trim())
+    .map((s) => s.trim().toLowerCase())
     .filter((s) => s.length > 0);
 
 const CreateListing = () => {

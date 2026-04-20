@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from 'react-router-dom';
+import TrustBadge from "../components/TrustBadge";
+import { useReviewSummaries } from "../hooks/useReviewSummaries";
 import { saveUserProfile, getUserProfile } from "../services/userService";
 import { logout } from "../services/authService";
 
@@ -15,6 +17,9 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { summaries, loading: trustLoading } = useReviewSummaries(
+    user?.uid ? [user.uid] : []
+  );
 
   const displayName = user?.displayName || (user?.email ? user.email.split("@")[0] : "User");
   const avatarUrl = user?.photoURL || null;
@@ -64,11 +69,16 @@ const Profile = () => {
     try {
       setSaving(true);
       await saveUserProfile(user.uid, {
-        
         name,
         email: user.email || "",
-        skillsOffered: skillsOffered.split(",").map((s) => s.trim()),
-        skillsWanted: skillsWanted.split(",").map((s) => s.trim()),
+        skillsOffered: skillsOffered
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean),
+        skillsWanted: skillsWanted
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean),
       });
       setSuccess("Profile updated successfully!");
     } catch (err) {
@@ -117,15 +127,28 @@ const Profile = () => {
             <div>
               <h1 className="text-3xl font-bold tracking-tight mb-1">{name || displayName}</h1>
               <p className="text-gray-500">{user?.email}</p>
+              <TrustBadge
+                summary={summaries?.[user?.uid]}
+                loading={trustLoading}
+                className="mt-3"
+              />
             </div>
           </div>
           
-          <button 
-            onClick={handleLogout}
-            className="px-6 py-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
-          >
-            Sign Out
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/dashboard"
+              className="px-6 py-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+            >
+              Dashboard
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="px-6 py-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Content Grid */}

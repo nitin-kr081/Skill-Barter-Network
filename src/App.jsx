@@ -1,4 +1,4 @@
-import { Routes, Route} from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Signup from './pages/Signup';
@@ -7,11 +7,11 @@ import Profile from "./pages/Profile";
 import CreateListing from "./pages/CreateListing";
 import Listings from "./pages/Listings";
 import MyListings from "./pages/MyListings";
-import './App.css'
-
-function Home(){
-  return <h1>Home Page</h1>
-}
+import MyRequests from "./pages/MyRequests";
+import Home from "./pages/Home";
+import Chat from "./pages/Chat";
+import Reviews from "./pages/Reviews";
+import "./App.css";
 
 function App() {
   // return <h1>APP WORKING</h1>;
@@ -50,6 +50,30 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/my-requests"
+        element={
+          <ProtectedRoute>
+            <MyRequests />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reviews"
+        element={
+          <ProtectedRoute>
+            <Reviews />
+          </ProtectedRoute>
+        }
+      />
       <Route 
         path="/profile" 
         element={
@@ -60,6 +84,7 @@ function App() {
       />
       <Route path='/signup' element={<Signup/>} />
       <Route path="/login" element={<Login/>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

@@ -69,8 +69,22 @@ const MyListings = () => {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-10 pb-6 border-b border-white/5">
           <div>
+            <div className="flex flex-wrap gap-3 mb-2">
+              <Link
+                to="/dashboard"
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                ← Dashboard
+              </Link>
+              <Link
+                to="/listings"
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                Marketplace
+              </Link>
+            </div>
             <h1 className="text-3xl font-bold tracking-tight">My Listings</h1>
             <p className="text-gray-500 text-sm mt-1">Manage and track your active skill-swap posts.</p>
           </div>
