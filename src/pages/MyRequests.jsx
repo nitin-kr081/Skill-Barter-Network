@@ -18,6 +18,8 @@ const statusStyles = (status) => {
   const s = String(status ?? "").toLowerCase();
   if (s === "accepted")
     return "border-emerald-500/25 bg-emerald-500/10 text-emerald-300";
+  if (s === "completed")
+    return "border-cyan-500/25 bg-cyan-500/10 text-cyan-300";
   if (s === "rejected")
     return "border-red-500/25 bg-red-500/10 text-red-300";
   return "border-amber-500/25 bg-amber-500/10 text-amber-200";
@@ -37,7 +39,9 @@ const RequestRow = ({
   const isOutgoing = row?.fromUser === userId;
   const canRespond =
     isIncoming && String(row?.status).toLowerCase() === "pending";
-  const isAccepted = String(row?.status).toLowerCase() === "accepted";
+  const status = String(row?.status).toLowerCase();
+  const canChat = status === "accepted" || status === "completed";
+  const canReview = status === "accepted";
   const otherUserId = isOutgoing ? row?.toUser : row?.fromUser;
 
   return (
@@ -51,7 +55,7 @@ const RequestRow = ({
             {listing?.title ?? "Listing"}
           </h3>
           <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-            {listing?.description ?? "Listing details load from the feed."}
+            {listing?.description ?? "Listing no longer available."}
           </p>
         </div>
         <span
@@ -65,6 +69,14 @@ const RequestRow = ({
         <span>Listing ID: {row?.listingId}</span>
         {isOutgoing && <span>To user: {row?.toUser}</span>}
         {isIncoming && <span>From user: {row?.fromUser}</span>}
+        {otherUserId && (
+          <Link
+            to={`/user/${encodeURIComponent(otherUserId)}`}
+            className="text-cyan-300 hover:text-cyan-200 transition-colors"
+          >
+            View Profile
+          </Link>
+        )}
       </div>
 
       {canRespond && (
@@ -88,7 +100,7 @@ const RequestRow = ({
         </div>
       )}
 
-      {isAccepted && otherUserId && (
+      {canChat && otherUserId && (
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
@@ -97,13 +109,15 @@ const RequestRow = ({
           >
             Chat
           </button>
-          <button
-            type="button"
-            onClick={() => onLeaveReview(row?.id)}
-            className="px-5 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-200 text-sm font-semibold hover:bg-purple-500/20 transition-all"
-          >
-            Leave Review
-          </button>
+          {canReview && (
+            <button
+              type="button"
+              onClick={() => onLeaveReview(row?.id)}
+              className="px-5 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-200 text-sm font-semibold hover:bg-purple-500/20 transition-all"
+            >
+              Leave Review
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -122,6 +136,20 @@ const MyRequests = () => {
   const [actionSuccess, setActionSuccess] = useState("");
 
   const listingMap = useMemo(() => listingsById(listings), [listings]);
+  const activeRequests = useMemo(
+    () =>
+      requests.filter(
+        (row) => String(row?.status ?? "").toLowerCase() !== "completed"
+      ),
+    [requests]
+  );
+  const completedRequests = useMemo(
+    () =>
+      requests.filter(
+        (row) => String(row?.status ?? "").toLowerCase() === "completed"
+      ),
+    [requests]
+  );
 
   const handleAccept = useCallback(
     async (id) => {
@@ -244,21 +272,51 @@ const MyRequests = () => {
           </div>
         )}
 
-        <div className="space-y-5">
-          {requests.map((row) => (
-            <RequestRow
-              key={row.id}
-              row={row}
-              userId={user?.uid}
-              listing={listingMap.get(row?.listingId)}
-              updatingId={updatingId}
-              onAccept={handleAccept}
-              onReject={handleReject}
-              onOpenChat={handleOpenChat}
-              onLeaveReview={handleLeaveReview}
-            />
-          ))}
-        </div>
+        {activeRequests.length > 0 && (
+          <div>
+            <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">
+              Active requests
+            </h2>
+            <div className="space-y-5">
+              {activeRequests.map((row) => (
+                <RequestRow
+                  key={row.id}
+                  row={row}
+                  userId={user?.uid}
+                  listing={listingMap.get(row?.listingId)}
+                  updatingId={updatingId}
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                  onOpenChat={handleOpenChat}
+                  onLeaveReview={handleLeaveReview}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {completedRequests.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">
+              Completed requests
+            </h2>
+            <div className="space-y-5">
+              {completedRequests.map((row) => (
+                <RequestRow
+                  key={row.id}
+                  row={row}
+                  userId={user?.uid}
+                  listing={listingMap.get(row?.listingId)}
+                  updatingId={updatingId}
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                  onOpenChat={handleOpenChat}
+                  onLeaveReview={handleLeaveReview}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

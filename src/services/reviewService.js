@@ -3,6 +3,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
   runTransaction,
@@ -129,6 +130,24 @@ export const getUserReviewSummary = async (userId) => {
     return toSummary(reviews);
   } catch (error) {
     console.error("Failed to compute user review summary", error);
+    throw error;
+  }
+};
+
+export const getRecentUserReviews = async (userId, max = 5) => {
+  if (!userId) return [];
+
+  try {
+    const reviewsQuery = query(
+      reviewsCollection,
+      where("toUser", "==", userId),
+      orderBy("createdAt", "desc"),
+      limit(Math.max(1, Math.min(max, 5)))
+    );
+    const snapshot = await getDocs(reviewsQuery);
+    return toReviews(snapshot);
+  } catch (error) {
+    console.error("Failed to fetch recent user reviews", error);
     throw error;
   }
 };

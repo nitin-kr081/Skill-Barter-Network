@@ -2,12 +2,15 @@ import { db } from "./firebase";
 import {
   collection,
   addDoc,
+  Timestamp,
   query,
   orderBy,
   onSnapshot,
   serverTimestamp,
   doc,
   deleteDoc,
+  updateDoc,
+  limit,
 } from "firebase/firestore";
 
 export const createListing = async (data) => {
@@ -16,6 +19,7 @@ export const createListing = async (data) => {
   try {
     return await addDoc(listingsRef, {
       ...data,
+      status: data?.status ?? "open",
       createdAt: serverTimestamp(),
     });
   } catch (error) {
@@ -25,7 +29,11 @@ export const createListing = async (data) => {
 };
 
 const listingsNewestFirstQuery = () =>
-  query(collection(db, "listings"), orderBy("createdAt", "desc"));
+  query(
+    collection(db, "listings"),
+    orderBy("createdAt", "desc"),
+    limit(120)
+  );
 
 const mapSnapshotToListings = (snapshot) =>
   snapshot.docs.map((d) => ({
@@ -52,6 +60,24 @@ export const deleteListing = async (id) => {
     await deleteDoc(doc(db, "listings", id));
   } catch (error) {
     console.error("Failed to delete listing", error);
+    throw error;
+  }
+};
+
+export const updateListingStatus = async (id, status, closedByRequestId) => {
+  if (!id || !status) {
+    throw new Error("updateListingStatus: id and status are required");
+  }
+
+  try {
+    const payload = { status };
+    if (status === "closed") {
+      payload.closedByRequestId = closedByRequestId ?? null;
+      payload.closedAt = Timestamp.now();
+    }
+    await updateDoc(doc(db, "listings", id), payload);
+  } catch (error) {
+    console.error("Failed to update listing status", error);
     throw error;
   }
 };

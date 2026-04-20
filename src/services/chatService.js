@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  limit,
   onSnapshot,
   orderBy,
   query,
@@ -48,8 +49,8 @@ export const sendMessage = async (chatId, messageData) => {
   }
 };
 
-export const subscribeMessages = (chatId, callback, onError) => {
-  if (!chatId) {
+export const subscribeMessages = (chatId, requestId, callback, onError) => {
+  if (!chatId || !requestId) {
     callback?.([]);
     return () => {};
   }
@@ -58,7 +59,9 @@ export const subscribeMessages = (chatId, callback, onError) => {
     const messagesQuery = query(
       messagesCollection,
       where("chatId", "==", chatId),
-      orderBy("timestamp", "asc")
+      where("requestId", "==", requestId),
+      orderBy("timestamp", "asc"),
+      limit(150)
     );
 
     return onSnapshot(

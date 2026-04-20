@@ -27,6 +27,7 @@ const Dashboard = () => {
     { label: "Pending requests", value: stats.pendingRequests },
     { label: "Accepted requests", value: stats.acceptedRequests },
     { label: "Rejected requests", value: stats.rejectedRequests },
+    { label: "Completed requests", value: stats.completedRequests },
   ];
 
   return (
@@ -74,7 +75,9 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
               {statCards.map((card) => (
                 <div
                   key={card.label}
@@ -88,6 +91,7 @@ const Dashboard = () => {
               ))}
             </div>
 
+            {/* Active Trades */}
             <div className="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr] gap-6">
               <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl shadow-xl">
                 <div className="flex items-center justify-between gap-3 mb-5">
@@ -119,13 +123,20 @@ const Dashboard = () => {
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                           <div>
                             <p className="text-lg font-semibold">
-                              {trade?.otherUserProfile?.name ||
+                              {trade?.otherUserProfile?.displayName ||
+                                trade?.otherUserProfile?.name ||
                                 trade?.otherUserProfile?.email ||
                                 "Community member"}
                             </p>
                             <p className="mt-1 text-sm text-gray-400">
                               {trade?.listing?.title || "Listing unavailable"}
                             </p>
+                            <Link
+                              to={`/user/${encodeURIComponent(trade.otherUserId)}`}
+                              className="mt-2 inline-block text-xs text-cyan-300 hover:text-cyan-200 transition-colors"
+                            >
+                              View Profile
+                            </Link>
                           </div>
                           <Link
                             to={`/chat?chatId=${encodeURIComponent(trade.chatId)}&userId=${encodeURIComponent(trade.otherUserId)}&requestId=${encodeURIComponent(trade.id)}`}
@@ -140,37 +151,27 @@ const Dashboard = () => {
                 </div>
               </section>
 
+              {/* Quick Actions */}
               <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl shadow-xl">
                 <h2 className="text-xl font-bold">Quick actions</h2>
                 <div className="mt-5 grid grid-cols-1 gap-3">
-                  <Link
-                    to="/listings"
-                    className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05] transition-all"
-                  >
+                  <Link to="/listings" className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05]">
                     Browse marketplace
                   </Link>
-                  <Link
-                    to="/create"
-                    className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05] transition-all"
-                  >
+                  <Link to="/create" className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05]">
                     Create listing
                   </Link>
-                  <Link
-                    to="/profile"
-                    className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05] transition-all"
-                  >
+                  <Link to="/profile" className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05]">
                     Update profile
                   </Link>
-                  <Link
-                    to="/my-listings"
-                    className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05] transition-all"
-                  >
+                  <Link to="/my-listings" className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-sm hover:bg-white/[0.05]">
                     Manage my listings
                   </Link>
                 </div>
               </section>
             </div>
 
+            {/* Recommendations */}
             <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl shadow-xl">
               <div className="flex items-center justify-between gap-3 mb-5">
                 <div>
@@ -179,25 +180,19 @@ const Dashboard = () => {
                     Listings that align with your offered skills.
                   </p>
                 </div>
-                <Link
-                  to="/listings"
-                  className="text-sm text-cyan-300 hover:text-cyan-200 transition-colors"
-                >
+                <Link to="/listings" className="text-sm text-cyan-300 hover:text-cyan-200">
                   Open feed
                 </Link>
               </div>
 
               {recommendations.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-10 text-center text-sm text-gray-400">
-                  No recommendations yet. Add more skills to your profile to improve matching.
+                  No recommendations yet.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {recommendations.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-white/10 bg-white/[0.02] p-4"
-                    >
+                    <div key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
                       <h3 className="text-lg font-semibold">{item?.title}</h3>
                       <p className="mt-2 text-sm text-gray-400 line-clamp-2">
                         {item?.description}
@@ -210,6 +205,7 @@ const Dashboard = () => {
                 </div>
               )}
             </section>
+
           </div>
         )}
       </div>

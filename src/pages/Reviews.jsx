@@ -3,6 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useRequests } from "../hooks/useRequests";
 import { addReview, getReviewerReviewForRequest } from "../services/reviewService";
+import { updateRequestStatus } from "../services/requestService";
+import { updateListingStatus } from "../services/listingService";
 
 const ratings = [5, 4, 3, 2, 1];
 
@@ -86,6 +88,12 @@ const Reviews = () => {
         requestId: request?.id,
         listingId: request?.listingId,
       });
+
+      // Close the accepted trade once a review is submitted.
+      await updateRequestStatus(request.id, "completed");
+      if (request?.listingId) {
+        await updateListingStatus(request.listingId, "closed", request.id);
+      }
       navigate("/my-requests");
     } catch (submitError) {
       setError(

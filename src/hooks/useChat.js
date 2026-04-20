@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { sendMessage as sendChatMessage, subscribeMessages } from "../services/chatService";
 
-export const useChat = (chatId) => {
+export const useChat = (chatId, requestId) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -12,6 +12,7 @@ export const useChat = (chatId) => {
 
     const unsubscribe = subscribeMessages(
       chatId,
+      requestId,
       (rows) => {
         setMessages(Array.isArray(rows) ? rows : []);
         setLoading(false);
@@ -24,19 +25,19 @@ export const useChat = (chatId) => {
     );
 
     return () => unsubscribe?.();
-  }, [chatId]);
+  }, [chatId, requestId]);
 
   const sendMessage = useCallback(
     async (messageData) => {
       try {
         setError("");
-        return await sendChatMessage(chatId, messageData);
+        return await sendChatMessage(chatId, { ...messageData, requestId });
       } catch (err) {
         setError("Failed to send message.");
         throw err;
       }
     },
-    [chatId]
+    [chatId, requestId]
   );
 
   return { messages, sendMessage, loading, error };

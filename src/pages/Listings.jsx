@@ -14,13 +14,15 @@ import {
 
 const buildEnrichedListings = (rows, mySkillsOfferedNormalized) => {
   if (!Array.isArray(rows)) return [];
-  return rows.map((listing) => {
+  return rows
+    .filter((listing) => String(listing?.status ?? "open").toLowerCase() !== "closed")
+    .map((listing) => {
     const { matchScore, isMatch } = getListingMatchMeta(
       listing,
       mySkillsOfferedNormalized
     );
     return { ...listing, matchScore, isMatch };
-  });
+    });
 };
 
 const buildPendingOutgoingListingIds = (requests, uid) => {
@@ -97,12 +99,20 @@ const ListingCard = ({
         </div>
       </div>
 
-      <p className="text-xs text-gray-500">Posted by: {item?.userEmail}</p>
-      <TrustBadge
-        summary={reviewSummary}
-        loading={trustLoading}
-        className="mt-4"
-      />
+      <div className="mt-4 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs text-gray-500">Posted by: {item?.userEmail}</p>
+          <TrustBadge summary={reviewSummary} loading={trustLoading} className="mt-2" />
+        </div>
+        {item?.userId && (
+          <Link
+            to={`/user/${encodeURIComponent(item.userId)}`}
+            className="text-xs text-cyan-300 hover:text-cyan-200 transition-colors"
+          >
+            View Profile
+          </Link>
+        )}
+      </div>
 
       {isOwn ? (
         <p className="mt-5 text-center text-xs text-gray-500 font-medium">
@@ -265,6 +275,9 @@ const Listings = () => {
             <p className="text-gray-500 mt-2">
               Live listings — newest first. Matches use your profile skills.
             </p>
+            <p className="text-xs text-gray-600 mt-2">
+              Showing open listings only.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-4">
@@ -310,7 +323,7 @@ const Listings = () => {
 
         {enrichedListings.length === 0 && (
           <div className="text-center py-20 bg-white/[0.02] border border-white/5 rounded-[40px] backdrop-blur-xl">
-            <p className="text-gray-500 text-lg">No listings</p>
+            <p className="text-gray-500 text-lg">No listings found</p>
           </div>
         )}
 

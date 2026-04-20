@@ -61,6 +61,7 @@ export const useDashboardData = () => {
       pendingRequests: (requests ?? []).filter((item) => item?.status === "pending").length,
       acceptedRequests: (requests ?? []).filter((item) => item?.status === "accepted").length,
       rejectedRequests: (requests ?? []).filter((item) => item?.status === "rejected").length,
+      completedRequests: (requests ?? []).filter((item) => item?.status === "completed").length,
     };
   }, [listings, requests, user?.uid]);
 
@@ -113,7 +114,12 @@ export const useDashboardData = () => {
     const normalizedSkills = normalizeSkillsArray(myProfile?.skillsOffered ?? []);
 
     return (listings ?? [])
-      .filter((listing) => listing?.userId && listing?.userId !== user?.uid)
+      .filter(
+        (listing) =>
+          listing?.userId &&
+          listing?.userId !== user?.uid &&
+          String(listing?.status ?? "open").toLowerCase() !== "closed"
+      )
       .map((listing) => {
         const match = getListingMatchMeta(listing, normalizedSkills);
         return { ...listing, ...match };

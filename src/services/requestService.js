@@ -3,6 +3,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   onSnapshot,
   or,
   query,
@@ -94,4 +95,21 @@ export const subscribeRequests = (userId, onNext, onError) => {
       onError?.(err);
     }
   );
+};
+
+export const getRequestById = async (requestId) => {
+  if (!requestId) return null;
+
+  try {
+    const snapshot = await getDoc(doc(db, "requests", requestId));
+    if (!snapshot.exists()) return null;
+
+    return {
+      id: snapshot.id,
+      ...snapshot.data(),
+    };
+  } catch (error) {
+    console.error("Failed to fetch request by id", error);
+    throw error;
+  }
 };
