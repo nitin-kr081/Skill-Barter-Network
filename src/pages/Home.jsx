@@ -32,12 +32,6 @@ const Home = () => {
             Explore Listings
           </Link>
 
-          <Link
-            to={user ? "/create-listing" : "/login"}
-            className="px-6 py-3 rounded-xl border border-white/20 hover:bg-white/10 transition-all"
-          >
-            Offer a Skill
-          </Link>
         </div>
       </div>
 

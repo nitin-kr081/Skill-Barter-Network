@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAoMKvxLsCe4loHlujVljTEIy6bKEYm2NA",
-  authDomain: "skill-barter-network-00.firebaseapp.com",
-  projectId: "skill-barter-network-00",
-  storageBucket: "skill-barter-network-00.firebasestorage.app",
-  messagingSenderId: "390256558435",
-  appId: "1:390256558435:web:95465057e78e6e816a9356"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
